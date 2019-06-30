@@ -3,6 +3,8 @@ var fs = require('fs');
 var sysPath = require('path');
 var process = require('process');
 
+var environmentCopy = Object.assign({}, process.env)
+
 module.exports = function (data) {
     var t = data.types;
 
@@ -30,19 +32,19 @@ module.exports = function (data) {
                     }
                     var importedId = specifier.imported.name
                     var localId = specifier.local.name;
-                    if(!(config.hasOwnProperty(importedId)) && !process.env.hasOwnProperty(importedId)) {
+                    if(!(config.hasOwnProperty(importedId)) && !environmentCopy.hasOwnProperty(importedId)) {
                       throw path.get('specifiers')[idx].buildCodeFrameError(
                         'Try to import dotenv variable "'
                         + importedId
                         + '" which is not defined in any '
                         + configFile
-                        + ' files or as environment variable.'
+                        + ' files or as an environment variable.'
                       )
                     }
 
                     var binding = path.scope.getBinding(localId);
                     binding.referencePaths.forEach(function(refPath){
-                      refPath.replaceWith(t.valueToNode(process.env[importedId] || config[importedId]))
+                      refPath.replaceWith(t.valueToNode(environmentCopy[importedId] || config[importedId]))
                     });
                   })
 
