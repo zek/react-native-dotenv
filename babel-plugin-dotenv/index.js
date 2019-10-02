@@ -33,13 +33,14 @@ module.exports = function (data) {
                     var importedId = specifier.imported.name
                     var localId = specifier.local.name;
                     if(!(config.hasOwnProperty(importedId)) && !environmentCopy.hasOwnProperty(importedId)) {
-                      throw path.get('specifiers')[idx].buildCodeFrameError(
+                      config[importedId] = null;
+                      /*throw path.get('specifiers')[idx].buildCodeFrameError(
                         'Try to import dotenv variable "'
                         + importedId
                         + '" which is not defined in any '
                         + configFile
                         + ' files or as an environment variable.'
-                      )
+                      )*/
                     }
 
                     var binding = path.scope.getBinding(localId);
