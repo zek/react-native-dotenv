@@ -11,11 +11,19 @@ var createPluginsWithConfigDir = function(configDir) {
 }
 
 describe('myself in some tests', function() {
-  it('should throw if variable not exist', function() {
+  before(function() {
+    process.env.FOO_ENV = 'foo'
+  })
+
+  after(function() {
+    delete process.env.FOO_ENV
+  })
+
+  it('should throw if variable not exist and no environemnt variable is defined', function() {
     expect(function(){
       babel.transformFileSync('test/fixtures/variable-not-exist/source.js')
     }).to.throwException(function (e) {
-      expect(e.message).to.contain("Try to import dotenv variable \"foo\" which is not defined in any .env files.");
+      expect(e.message).to.contain("Try to import dotenv variable \"foo\" which is not defined in any .env files or as an environment variable.");
     });
   });
 
@@ -26,6 +34,11 @@ describe('myself in some tests', function() {
       expect(e.message).to.contain("Import dotenv as default is not supported.");
     });
   });
+
+  it('should override values defined in .env with environment variable', function() {
+    var result = babel.transformFileSync('test/fixtures/override-value/source.js')
+    expect(result.code).to.be('\'use strict\';\n\nconsole.log(\'foo\');')
+  })
 
   it('should load default env from .env', function(){
     var result = babel.transformFileSync('test/fixtures/default/source.js')
